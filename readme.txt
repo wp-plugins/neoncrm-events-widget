@@ -41,8 +41,8 @@ This guide explains how to generate an API key: [API Keys](http://help.neoncrm.c
 
 == Screenshots ==
 
-1. Configure each widget's settings.
-2. Display upcoming events in a widget.
+1. Configure each widget's settings
+2. Display upcoming events in a widget
 
 == Changelog ==
 
