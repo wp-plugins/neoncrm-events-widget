@@ -153,8 +153,8 @@ class Neoncrm_Events extends WP_Widget {
    * Clear cached version of the events list
    *
    */
-    public function clear_neoncrm_cache() {
-        delete_transient('neoncrm_events');
+    public function clear_neoncrm_cache($widget_id) {
+        delete_transient($widget_id);
     }
 	
   /**
@@ -215,7 +215,7 @@ class Neoncrm_Events extends WP_Widget {
 		$cache_time          = $instance['cache_time'];
 		
 		// Check for cached data
-		$cached_events = get_transient('neoncrm_events');
+		$cached_events = get_transient( $this->id );
 		//$cached_events = false; // Disables caching for testing purposes.
 		
 		// If the data isn't cached, go get it and then cache it.
@@ -379,7 +379,9 @@ class Neoncrm_Events extends WP_Widget {
 						$events_output .= '</div>';	
 					}
 					
-					// Close the widget wrapper
+          //$events_output .= '<pre>' . $this->id . '</pre>'; // For testing the transient cache
+          
+          // Close the widget wrapper
 					$events_output .= '</div>';
 					
 					// Check for cache settings
@@ -389,9 +391,9 @@ class Neoncrm_Events extends WP_Widget {
 						// Default cache time is one hour
 						$cache_time = 60 * 60;
 					}
-				
+          
 					// Save the output data to the transient cache
-					set_transient( 'neoncrm_events', $events_output, $cache_time );
+					set_transient( $this->id, $events_output, $cache_time );
 					
 					// Save the output to $cached_events
 					$cached_events = $events_output;
