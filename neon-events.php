@@ -1,11 +1,11 @@
 <?php
 /*
 Plugin Name: NeonCRM Events Widget
-Plugin URI: http://URI_Of_Page_Describing_Plugin_and_Updates
+Plugin URI: https://wordpress.org/plugins/neoncrm-events-widget/
 Description: Retrieves a list of upcoming events from NeonCRM, and displays them as a widget.
 Version: 0.11
 Author: Colin Pizarek
-Author URI: http://www.z2systems.com/
+Author URI: https://profiles.wordpress.org/colinpizarek/
 License: GPL2
 */
 
