@@ -52,6 +52,9 @@ This guide explains how to generate an API key: [API Keys](http://help.neoncrm.c
 = 0.11 =
 * Fixed an issue that caused multiple cached widget instances to overwrite each other.
 
+= 0.12 =
+* Fixed an issue that prevented the cache from being cleared when a widget is updated.
+
 == Upgrade Notice ==
 
 = 0.1 =
@@ -59,3 +62,6 @@ This guide explains how to generate an API key: [API Keys](http://help.neoncrm.c
 
 = 0.11 =
 * Fixes a bug related to multiple widget instances
+
+= 0.12 =
+* Fixes a bug related to saving widget instances
