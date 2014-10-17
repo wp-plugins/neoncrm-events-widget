@@ -3,7 +3,7 @@
 Plugin Name: NeonCRM Events Widget
 Plugin URI: http://URI_Of_Page_Describing_Plugin_and_Updates
 Description: Retrieves a list of upcoming events from NeonCRM, and displays them as a widget.
-Version: 0.1
+Version: 0.11
 Author: Colin Pizarek
 Author URI: http://www.z2systems.com/
 License: GPL2
