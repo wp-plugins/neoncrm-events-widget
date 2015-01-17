@@ -3,8 +3,8 @@
 Plugin Name: NeonCRM Events Widget
 Plugin URI: https://wordpress.org/plugins/neoncrm-events-widget/
 Description: Retrieves a list of upcoming events from NeonCRM, and displays them as a widget.
-Version: 0.12
 Author: Colin Pizarek
+Version: 0.13
 Author URI: https://profiles.wordpress.org/colinpizarek/
 License: GPL2
 */
@@ -49,7 +49,9 @@ class Neoncrm_Events extends WP_Widget {
 			$event_detail_link   = esc_attr( $instance['event_detail_link'] );
 			$event_campaign      = esc_attr( $instance['event_campaign'] );
 			$event_category      = esc_attr( $instance['event_category'] );
-			 $cache_time         = esc_attr( $instance['cache_time'] );
+			$event_web_publish	 = esc_attr( $instance['event_web_publish'] );
+			$event_web_register	 = esc_attr( $instance['event_web_register'] );
+			$cache_time          = esc_attr( $instance['cache_time'] );
 		} else {
 			// Use default values for settings
 			$title               = 'Upcoming Events';
@@ -66,6 +68,8 @@ class Neoncrm_Events extends WP_Widget {
 			$event_detail_link   = 0;
 			$event_campaign      = '';
 			$event_category      = '';
+			$event_web_publish	 = 1;
+			$event_web_register  = 1;
 			$cache_time          = 60;
 		}
 		
@@ -95,7 +99,7 @@ class Neoncrm_Events extends WP_Widget {
 			<input class="widefat" id="<?php echo $this->get_field_id('title'); ?>" name="<?php echo $this->get_field_name('title'); ?>" type="text" value="<?php echo $title; ?>" />
 		</p>
 		<p>
-			<label for="<?php echo $this->get_field_id('per_page'); ?>"><?php _e('# of events to display:', 'neoncrm_events_widget'); ?></label>
+			<label for="<?php echo $this->get_field_id('per_page'); ?>"><?php _e('Maximum # of events to display:', 'neoncrm_events_widget'); ?></label>
 			<input class="widefat" id="<?php echo $this->get_field_id('per_page'); ?>" name="<?php echo $this->get_field_name('per_page'); ?>" value="<?php echo $per_page; ?>" />
 		</p>
 		<p>
@@ -126,7 +130,7 @@ class Neoncrm_Events extends WP_Widget {
 		</p>
 		<p>
 			<input id="<?php echo $this->get_field_id('event_location'); ?>" name="<?php echo $this->get_field_name('event_location'); ?>" type="checkbox" value="1" <?php checked( '1', $event_location ); ?> />
-			<label for="<?php echo $this->get_field_id('event_location'); ?>"><?php _e('Location Name', 'neoncrm_events_widget'); ?></label>
+			<label for="<?php echo $this->get_field_id('event_location'); ?>"><?php _e('Event Location', 'neoncrm_events_widget'); ?></label>
 		</p>
 		<p>
 			<input id="<?php echo $this->get_field_id('event_register_link'); ?>" name="<?php echo $this->get_field_name('event_register_link'); ?>" type="checkbox" value="1" <?php checked( '1', $event_register_link ); ?> />
@@ -145,6 +149,16 @@ class Neoncrm_Events extends WP_Widget {
 		<p>
 			<label for="<?php echo $this->get_field_id('event_category'); ?>"><?php _e('Category:', 'neoncrm_events_widget'); ?></label>
 			<input class="widefat" id="<?php echo $this->get_field_id('event_category'); ?>" name="<?php echo $this->get_field_name('event_category'); ?>" type="text" value="<?php echo $event_category; ?>" />
+		</p>
+		<hr />
+		<strong>Web Publish Settings</strong>
+		<p>
+			<input id="<?php echo $this->get_field_id('event_web_publish'); ?>" name="<?php echo $this->get_field_name('event_web_publish'); ?>" type="checkbox" value="1" <?php checked( '1', $event_web_publish ); ?> />
+			<label for="<?php echo $this->get_field_id('event_web_publish'); ?>"><?php _e('Hide events that are not web-published', 'neoncrm_events_widget'); ?></label>
+		</p>
+		<p>
+			<input id="<?php echo $this->get_field_id('event_web_register'); ?>" name="<?php echo $this->get_field_name('event_web_register'); ?>" type="checkbox" value="1" <?php checked( '1', $event_web_register ); ?> />
+			<label for="<?php echo $this->get_field_id('event_web_register'); ?>"><?php _e('Hide events that have online registration disabled', 'neoncrm_events_widget'); ?></label>
 		</p>
 	<?php
 	}
@@ -184,6 +198,8 @@ class Neoncrm_Events extends WP_Widget {
 		$instance['event_detail_link']   = strip_tags($new_instance['event_detail_link']);
 		$instance['event_campaign']      = strip_tags($new_instance['event_campaign']);
 		$instance['event_category']      = strip_tags($new_instance['event_category']);
+		$instance['event_web_publish']   = strip_tags($new_instance['event_web_publish']);
+		$instance['event_web_register']  = strip_tags($new_instance['event_web_register']);
 		$instance['cache_time']          = strip_tags($new_instance['cache_time']);
 		return $instance;
 		}
@@ -212,6 +228,8 @@ class Neoncrm_Events extends WP_Widget {
 		$event_detail_link   = $instance['event_detail_link'];
 		$event_campaign      = $instance['event_campaign'];
 		$event_category      = $instance['event_category'];
+		$event_web_publish   = $instance['event_web_publish'];
+		$event_web_register  = $instance['event_web_register'];
 		$cache_time          = $instance['cache_time'];
 		
 		// Check for cached data
@@ -238,9 +256,11 @@ class Neoncrm_Events extends WP_Widget {
 					$search = array();
 					$search['method'] = 'event/listEvents';
 					
-					// Always include the Event Id and Start Date as columns
+					// Always include the Event ID and Start Date as columns
 					$search['columns']['standardFields'][] = 'Event Start Date';
-					$search['columns']['standardFields'][] = 'Event Id';
+					$search['columns']['standardFields'][] = 'Event ID';
+					$search['columns']['standardFields'][] = 'Event Web Publish';
+					$search['columns']['standardFields'][] = 'Event Web Register';
 					
 					// Check settings to include other columns
 					if ( $event_name == 1 ) {
@@ -259,7 +279,7 @@ class Neoncrm_Events extends WP_Widget {
 						$search['columns']['standardFields'][] = 'Event End Time';
 					}
 					if ( $event_location == 1 ) {
-						$search['columns']['standardFields'][] = 'Location';
+						$search['columns']['standardFields'][] = 'Event Location Name';
 					}
 					
 					// Always search by start date
@@ -267,19 +287,14 @@ class Neoncrm_Events extends WP_Widget {
 					
 					// Check settings to include other search criteria
 					if ( $event_campaign ) {
-						$search['criteria'][] = array( 'Event Campaign', 'EQUAL', $event_campaign );
+						$search['criteria'][] = array( 'Campaign Name', 'EQUAL', $event_campaign );
 					}
 					if ( $event_category ) {
-						$search['criteria'][] = array( 'Event Category', 'EQUAL', $event_category );
+						$search['criteria'][] = array( 'Event Category Name', 'EQUAL', $event_category );
 					}
 					
-					// Check settings for pagination preference
-					if ( $per_page ) {
-						$search['page']['pageSize'] = $per_page;
-					} else {
-						// Use API's default page size
-						$search['page']['pageSize'] = null;
-					}
+					// Always return 100 results
+					$search['page']['pageSize'] = '100';
 					
 					// Always sort ascending by Event Start Date
 					$search['page']['sortColumn'] = 'Event Start Date';
@@ -302,83 +317,96 @@ class Neoncrm_Events extends WP_Widget {
 					if ( $title ) {
 						$events_output .= $before_title . $title . $after_title;
 					}
+					// Counter for the $per_page value
+					$i = 0;
 					
 					// Iterate through search results
 					foreach ( $result['searchResults'] as $key => $event ) {
 						
-						// Wrap each event in a div
-						$events_output .= '<div class="neoncrm-event neoncrm-event-' . $event['Event Id'] . '">';
+						// Only iterate through more events if we haven't reached the max number
+						if ( $i < $per_page ) {
 						
-						// Display Event Name
-						if ( isset( $event['Event Name'] ) ) {
-							$events_output .= '<p class="neoncrm-event-name">' . $event['Event Name'] . '</p>';
+							// If we only display web-published events or web-registration-enabled events, check to see if this is true and filter the output
+							if ( ( ( $event_web_publish == 1 && $event['Event Web Publish'] == 'Yes' ) || ( $event_web_publish == 0 ) ) && ( ( $event_web_register == 1 && $event['Event Web Register'] == 'Yes' ) || ( $event_web_register == 0 ) ) ) {
+								
+								// Increment the counter
+								$i++;
+								
+								// Wrap each event in a div
+								$events_output .= '<div class="neoncrm-event neoncrm-event-' . $event['Event ID'] . '">';
+								
+								// Display Event Name
+								if ( isset( $event['Event Name'] ) ) {
+									$events_output .= '<p class="neoncrm-event-name">' . $event['Event Name'] . '</p>';
+								}
+								
+								// Reformat times and dates
+								if ( isset( $event['Event Start Date'] ) ) { 
+									$event['Event Start Date'] = date( 'm/d/Y', ( strtotime( $event['Event Start Date'] ) ) ); 
+								}
+								if ( isset( $event['Event End Date'] ) ) { 
+									$event['Event End Date'] = date( 'm/d/Y', ( strtotime( $event['Event End Date'] ) ) ); 
+								}
+								if ( isset( $event['Event Start Time'] ) ) { 
+									$event['Event Start Time'] = date( 'g:i a', ( strtotime( $event['Event Start Time'] ) ) ); 
+								}
+								if ( isset( $event['Event End Time'] ) ) { 
+									$event['Event End Time'] = date( 'g:i a', ( strtotime( $event['Event End Time'] ) ) ); 
+								}
+								
+								// Display Event Start/End Time/Date 
+								if ( $event['Event Start Date'] || $event['Event Start Time'] || $event['Event End Date'] || $event['Event End Time'] ) {
+									$events_output .= '<p class="neoncrm-event-time">';
+								}
+								if ( isset( $event['Event Start Date'] ) && isset( $event['Event Start Time'] ) ) {
+									$events_output .= $event['Event Start Date'] . ' ' . $event['Event Start Time'];
+								} else if ( isset( $event['Event Start Date'] ) && !isset( $event['Event Start Time'] ) ) {
+									$events_output .= $event['Event Start Date'];
+								} else if ( isset( $event['Event Start Time'] ) && !isset( $event['Event Start Date'] ) ) {
+									$events_output .= $event['Event Start Time'];
+								}
+								if ( ( isset( $event['Event Start Date'] ) || isset( $event['Event Start Time'] ) ) && ( isset( $event['Event End Date'] ) || isset( $event['Event End Time'] ) ) ) {
+									$events_output .= ' - ';
+								}
+								if ( isset( $event['Event End Date'] ) && isset( $event['Event End Time'] ) ) {
+									$events_output .= $event['Event End Date'] . ' ' . $event['Event End Time'];
+								} else if ( isset( $event['Event End Date'] ) && !isset( $event['Event End Time'] ) ) {
+									$events_output .= $event['Event End Date'];
+								} else if ( isset( $event['Event End Time'] ) && !isset( $event['Event End Date'] ) ) {
+									$events_output .= $event['Event End Time'];
+								}
+								if ( isset( $event['Event Start Date'] ) || isset( $event['Event Start Time'] ) || isset( $event['Event End Date'] ) || isset( $event['Event End Time'] ) ) {
+									$events_output .= '</p>';
+								}
+								
+								// Display Event Location Name
+								if ( isset( $event['Event Location Name'] ) ) {
+									$events_output .= '<p class="neoncrm-event-location">' . $event['Event Location Name'] . '</p>';
+								}
+								
+								// Display Register Link or Detail Link section
+								if ( $event_register_link == 1 || $event_detail_link == 1 ) {
+									$events_output .= '<p class="neoncrm-event-links">';
+								}
+								if ( $event_detail_link == 1 && isset( $event['Event ID'] ) ) {
+									$events_output .= '<a href="https://' . $keys['orgId'] . '.z2systems.com/np/clients/' . $keys['orgId'] . '/event.jsp?event=' . $event['Event ID'] . '">Details</a>';
+								}
+								if ( $event_register_link == 1 && $event_detail_link == 1 ) {
+									$events_output .= '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;';
+								}
+								if ( $event_register_link == 1 && isset( $event['Event ID'] ) ) {
+									$events_output .= '<a href="https://' . $keys['orgId'] . '.z2systems.com/np/clients/' . $keys['orgId'] . '/eventRegistration.jsp?event=' . $event['Event ID'] . '">Register</a> ';
+								}
+								if ( $event_register_link == 1 || $event_detail_link == 1 ) {
+									$events_output .= '</p>';
+								}
+								
+								// Close the event wrapper
+								$events_output .= '</div>';
+								
+							}
 						}
-						
-						// Reformat times and dates
-						if ( isset( $event['Event Start Date'] ) ) { 
-							$event['Event Start Date'] = date( 'm/d/Y', ( strtotime( $event['Event Start Date'] ) ) ); 
-						}
-						if ( isset( $event['Event End Date'] ) ) { 
-							$event['Event End Date'] = date( 'm/d/Y', ( strtotime( $event['Event End Date'] ) ) ); 
-						}
-						if ( isset( $event['Event Start Time'] ) ) { 
-							$event['Event Start Time'] = date( 'g:i a', ( strtotime( $event['Event Start Time'] ) ) ); 
-						}
-						if ( isset( $event['Event End Time'] ) ) { 
-							$event['Event End Time'] = date( 'g:i a', ( strtotime( $event['Event End Time'] ) ) ); 
-						}
-						
-						// Display Event Start/End Time/Date 
-						if ( $event['Event Start Date'] || $event['Event Start Time'] || $event['Event End Date'] || $event['Event End Time'] ) {
-							$events_output .= '<p class="neoncrm-event-time">';
-						}
-						if ( isset( $event['Event Start Date'] ) && isset( $event['Event Start Time'] ) ) {
-							$events_output .= $event['Event Start Date'] . ' ' . $event['Event Start Time'];
-						} else if ( isset( $event['Event Start Date'] ) && !isset( $event['Event Start Time'] ) ) {
-							$events_output .= $event['Event Start Date'];
-						} else if ( isset( $event['Event Start Time'] ) && !isset( $event['Event Start Date'] ) ) {
-							$events_output .= $event['Event Start Time'];
-						}
-						if ( ( isset( $event['Event Start Date'] ) || isset( $event['Event Start Time'] ) ) && ( isset( $event['Event End Date'] ) || isset( $event['Event End Time'] ) ) ) {
-							$events_output .= ' - ';
-						}
-						if ( isset( $event['Event End Date'] ) && isset( $event['Event End Time'] ) ) {
-							$events_output .= $event['Event End Date'] . ' ' . $event['Event End Time'];
-						} else if ( isset( $event['Event End Date'] ) && !isset( $event['Event End Time'] ) ) {
-							$events_output .= $event['Event End Date'];
-						} else if ( isset( $event['Event End Time'] ) && !isset( $event['Event End Date'] ) ) {
-							$events_output .= $event['Event End Time'];
-						}
-						if ( isset( $event['Event Start Date'] ) || isset( $event['Event Start Time'] ) || isset( $event['Event End Date'] ) || isset( $event['Event End Time'] ) ) {
-							$events_output .= '</p>';
-						}
-						
-						// Display Event Location Name
-						if ( isset( $event['Location'] ) ) {
-							$events_output .= '<p class="neoncrm-event-location">' . $event['Location'] . '</p>';
-						}
-						
-						// Display Register Link or Detail Link section
-						if ( $event_register_link == 1 || $event_detail_link == 1 ) {
-							$events_output .= '<p class="neoncrm-event-links">';
-						}
-						if ( $event_detail_link == 1 && isset( $event['Event Id'] ) ) {
-							$events_output .= '<a href="https://' . $keys['orgId'] . '.z2systems.com/np/clients/' . $keys['orgId'] . '/event.jsp?event=' . $event['Event Id'] . '">Details</a>';
-						}
-						if ( $event_register_link == 1 && $event_detail_link == 1 ) {
-							$events_output .= '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;';
-						}
-						if ( $event_register_link == 1 && isset( $event['Event Id'] ) ) {
-							$events_output .= '<a href="https://' . $keys['orgId'] . '.z2systems.com/np/clients/' . $keys['orgId'] . '/eventRegistration.jsp?event=' . $event['Event Id'] . '">Register</a> ';
-						}
-						if ( $event_register_link == 1 || $event_detail_link == 1 ) {
-							$events_output .= '</p>';
-						}
-						
-						// Close the event wrapper
-						$events_output .= '</div>';	
 					}
-					
           //$events_output .= '<pre>' . $this->id . '</pre>'; // For testing the transient cache
           
           // Close the widget wrapper
