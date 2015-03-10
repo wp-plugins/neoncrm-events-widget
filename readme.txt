@@ -60,6 +60,9 @@ This guide explains how to generate an API key: [API Keys](http://help.neoncrm.c
 * Added two new filter options to hide events that are not web-published or have web registration disabled.
 * Refactored the logic for the number of events to display, due to the new filters
 
+= 0.14 =
+* Fixed an issue that prevented Category filtering from working
+
 == Upgrade Notice ==
 
 = 0.1 =
@@ -74,3 +77,6 @@ This guide explains how to generate an API key: [API Keys](http://help.neoncrm.c
 = 0.13 =
 * Update to stay compatible with changes made to NeonCRM. The plugin may not work properly without this update.
 * Adds new filters that correspond with NeonCRM's web publish settings
+
+= 0.14 =
+* Fixes an bug that prevents Category filtering from working

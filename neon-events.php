@@ -4,7 +4,7 @@ Plugin Name: NeonCRM Events Widget
 Plugin URI: https://wordpress.org/plugins/neoncrm-events-widget/
 Description: Retrieves a list of upcoming events from NeonCRM, and displays them as a widget.
 Author: Colin Pizarek
-Version: 0.13
+Version: 0.14
 Author URI: https://profiles.wordpress.org/colinpizarek/
 License: GPL2
 */
@@ -290,7 +290,7 @@ class Neoncrm_Events extends WP_Widget {
 						$search['criteria'][] = array( 'Campaign Name', 'EQUAL', $event_campaign );
 					}
 					if ( $event_category ) {
-						$search['criteria'][] = array( 'Event Category Name', 'EQUAL', $event_category );
+						$search['criteria'][] = array( 'Event Category', 'EQUAL', $event_category );
 					}
 					
 					// Always return 100 results
