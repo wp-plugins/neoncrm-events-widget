@@ -3,7 +3,7 @@ Contributors: colinpizarek
 Donate link: http://www.z2systems.com/
 Tags: neon, neoncrm, crm, events, nonprofit
 Requires at least: 4.0
-Tested up to: 4.2
+Tested up to: 4.3
 Stable tag: trunk
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
@@ -63,6 +63,9 @@ This guide explains how to generate an API key: [API Keys](http://help.neoncrm.c
 = 0.14 =
 * Fixed an issue that prevented Category filtering from working
 
+= 0.15 =
+* Removed PHP4-style class constructors
+
 == Upgrade Notice ==
 
 = 0.1 =
@@ -80,3 +83,6 @@ This guide explains how to generate an API key: [API Keys](http://help.neoncrm.c
 
 = 0.14 =
 * Fixes an bug that prevents Category filtering from working
+
+= 0.15 =
+* This update ensures compatibility with WordPress 4.3. The plugin may not work properly without this update.
